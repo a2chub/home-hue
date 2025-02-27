@@ -127,6 +127,47 @@ document.addEventListener('DOMContentLoaded', function() {
             showLightDetails(lightId);
         });
     });
+    
+    // 接続不可の照明表示切り替えスイッチ
+    const showUnreachableSwitch = document.getElementById('show-unreachable-switch');
+    if (showUnreachableSwitch) {
+        showUnreachableSwitch.addEventListener('change', function() {
+            const showUnreachable = this.checked;
+            const unreachableLights = document.querySelectorAll('.unreachable-light');
+            
+            unreachableLights.forEach(light => {
+                if (showUnreachable) {
+                    light.classList.remove('d-none');
+                } else {
+                    light.classList.add('d-none');
+                }
+            });
+        });
+    }
+
+    // ルームスイッチの制御
+    const roomSwitches = document.querySelectorAll('.room-switch');
+    roomSwitches.forEach(switchEl => {
+        switchEl.addEventListener('change', function() {
+            const roomId = this.dataset.roomId;
+            const isOn = this.checked;
+            
+            // APIリクエストを送信
+            updateGroup(roomId, { on: isOn });
+        });
+    });
+
+    // ルーム明るさスライダーの制御
+    const roomBrightnessSliders = document.querySelectorAll('.room-brightness-slider');
+    roomBrightnessSliders.forEach(slider => {
+        slider.addEventListener('change', function() {
+            const roomId = this.dataset.roomId;
+            const brightness = parseInt(this.value);
+            
+            // APIリクエストを送信
+            updateGroup(roomId, { brightness: brightness });
+        });
+    });
 });
 
 /**
@@ -217,6 +258,34 @@ function showLightDetails(lightId) {
         // モーダルを表示
         const modal = new bootstrap.Modal(document.getElementById('lightDetailModal'));
         modal.show();
+    })
+    .catch(error => {
+        console.error('エラー:', error);
+        alert(`エラーが発生しました: ${error.message}`);
+    });
+}
+
+/**
+ * グループ（ルーム）の状態を更新するAPIを呼び出す関数
+ * @param {string} groupId - グループのID
+ * @param {Object} data - 更新するデータ
+ */
+function updateGroup(groupId, data) {
+    fetch(`/api/groups/${groupId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('グループの更新に失敗しました');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('グループを更新しました:', data);
     })
     .catch(error => {
         console.error('エラー:', error);

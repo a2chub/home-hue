@@ -62,71 +62,150 @@
                                 <i class="bi bi-power"></i> すべてオフ
                             </button>
                         </div>
+                        <div class="form-check form-switch mt-3">
+                            <input class="form-check-input" type="checkbox" role="switch" id="show-unreachable-switch">
+                            <label class="form-check-label" for="show-unreachable-switch">接続不可の照明を表示</label>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <h2 class="mb-4"><i class="bi bi-lightbulb"></i> 照明一覧</h2>
-        
-        <div id="lights-container" class="row">
-            {% for light in lights %}
-            <div class="col-md-4 mb-4">
-                <div class="card light-card {% if light.on %}light-on{% else %}light-off{% endif %}" data-light-id="{{ light.id }}">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">{{ light.name }}</h5>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input light-switch" type="checkbox" role="switch" 
-                                   id="light-switch-{{ light.id }}" {% if light.on %}checked{% endif %}
-                                   data-light-id="{{ light.id }}">
+        <h2 class="mb-4"><i class="bi bi-lightbulb"></i> 照明コントロール</h2>
+
+        <ul class="nav nav-tabs mb-4" id="lightTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="all-lights-tab" data-bs-toggle="tab" data-bs-target="#all-lights" type="button" role="tab" aria-controls="all-lights" aria-selected="true">
+                    <i class="bi bi-lightbulb"></i> すべての照明
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="rooms-tab" data-bs-toggle="tab" data-bs-target="#rooms" type="button" role="tab" aria-controls="rooms" aria-selected="false">
+                    <i class="bi bi-house"></i> ルーム別
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="lightTabsContent">
+            <!-- すべての照明タブ -->
+            <div class="tab-pane fade show active" id="all-lights" role="tabpanel" aria-labelledby="all-lights-tab">
+                <div id="lights-container" class="row">
+                    {% for light in lights %}
+                    <div class="col-md-4 mb-4 light-item {% if not light.reachable %}unreachable-light d-none{% endif %}" data-reachable="{{ light.reachable|lower }}">
+                        <div class="card light-card {% if light.on %}light-on{% else %}light-off{% endif %}" data-light-id="{{ light.id }}">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">{{ light.name }}</h5>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input light-switch" type="checkbox" role="switch" 
+                                           id="light-switch-{{ light.id }}" {% if light.on %}checked{% endif %}
+                                           data-light-id="{{ light.id }}">
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">
+                                    <small class="text-muted">タイプ: {{ light.type }}</small>
+                                </p>
+                                
+                                <div class="mb-3">
+                                    <label for="brightness-{{ light.id }}" class="form-label">
+                                        <i class="bi bi-brightness-high"></i> 明るさ
+                                    </label>
+                                    <input type="range" class="form-range brightness-slider" 
+                                           id="brightness-{{ light.id }}" min="1" max="254" 
+                                           value="{{ light.brightness }}" data-light-id="{{ light.id }}">
+                                </div>
+                                
+                                {% if light.has_color %}
+                                <div class="mb-3">
+                                    <label for="hue-{{ light.id }}" class="form-label">
+                                        <i class="bi bi-palette"></i> 色相
+                                    </label>
+                                    <input type="range" class="form-range hue-slider" 
+                                           id="hue-{{ light.id }}" min="0" max="65535" 
+                                           value="0" data-light-id="{{ light.id }}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="saturation-{{ light.id }}" class="form-label">
+                                        <i class="bi bi-droplet"></i> 彩度
+                                    </label>
+                                    <input type="range" class="form-range saturation-slider" 
+                                           id="saturation-{{ light.id }}" min="0" max="254" 
+                                           value="0" data-light-id="{{ light.id }}">
+                                </div>
+                                {% endif %}
+                                
+                                <div class="d-flex justify-content-between mt-3">
+                                    <span class="badge {% if light.reachable %}bg-success{% else %}bg-danger{% endif %}">
+                                        {% if light.reachable %}接続可能{% else %}接続不可{% endif %}
+                                    </span>
+                                    <button class="btn btn-sm btn-outline-primary light-info-btn" data-light-id="{{ light.id }}">
+                                        <i class="bi bi-info-circle"></i> 詳細
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <p class="card-text">
-                            <small class="text-muted">タイプ: {{ light.type }}</small>
-                        </p>
-                        
-                        <div class="mb-3">
-                            <label for="brightness-{{ light.id }}" class="form-label">
-                                <i class="bi bi-brightness-high"></i> 明るさ
-                            </label>
-                            <input type="range" class="form-range brightness-slider" 
-                                   id="brightness-{{ light.id }}" min="1" max="254" 
-                                   value="{{ light.brightness }}" data-light-id="{{ light.id }}">
-                        </div>
-                        
-                        {% if light.has_color %}
-                        <div class="mb-3">
-                            <label for="hue-{{ light.id }}" class="form-label">
-                                <i class="bi bi-palette"></i> 色相
-                            </label>
-                            <input type="range" class="form-range hue-slider" 
-                                   id="hue-{{ light.id }}" min="0" max="65535" 
-                                   value="0" data-light-id="{{ light.id }}">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="saturation-{{ light.id }}" class="form-label">
-                                <i class="bi bi-droplet"></i> 彩度
-                            </label>
-                            <input type="range" class="form-range saturation-slider" 
-                                   id="saturation-{{ light.id }}" min="0" max="254" 
-                                   value="0" data-light-id="{{ light.id }}">
-                        </div>
-                        {% endif %}
-                        
-                        <div class="d-flex justify-content-between mt-3">
-                            <span class="badge {% if light.reachable %}bg-success{% else %}bg-danger{% endif %}">
-                                {% if light.reachable %}接続可能{% else %}接続不可{% endif %}
-                            </span>
-                            <button class="btn btn-sm btn-outline-primary light-info-btn" data-light-id="{{ light.id }}">
-                                <i class="bi bi-info-circle"></i> 詳細
-                            </button>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
-            {% endfor %}
+            
+            <!-- ルーム別タブ -->
+            <div class="tab-pane fade" id="rooms" role="tabpanel" aria-labelledby="rooms-tab">
+                <div id="rooms-container">
+                    {% if rooms %}
+                        {% for room_id, room in rooms.items() %}
+                        <div class="card mb-4 room-card" data-room-id="{{ room_id }}">
+                            <div class="card-header d-flex justify-content-between align-items-center bg-info text-white">
+                                <h5 class="card-title mb-0">{{ room.name }}</h5>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input room-switch" type="checkbox" role="switch" 
+                                           id="room-switch-{{ room_id }}" {% if room.state.all_on or room.state.any_on %}checked{% endif %}
+                                           data-room-id="{{ room_id }}">
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="room-brightness-{{ room_id }}" class="form-label">
+                                        <i class="bi bi-brightness-high"></i> 明るさ
+                                    </label>
+                                    <input type="range" class="form-range room-brightness-slider" 
+                                           id="room-brightness-{{ room_id }}" min="1" max="254" 
+                                           value="{{ room.action.bri|default(254) }}" data-room-id="{{ room_id }}">
+                                </div>
+                                
+                                {% if room.lights|length > 0 %}
+                                <div class="mt-3">
+                                    <h6>このルームの照明:</h6>
+                                    <ul class="list-group">
+                                        {% for light_id in room.lights %}
+                                            {% for light in lights %}
+                                                {% if light.id|string == light_id %}
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    {{ light.name }}
+                                                    <span class="badge {% if light.on %}bg-success{% else %}bg-danger{% endif %}">
+                                                        {% if light.on %}オン{% else %}オフ{% endif %}
+                                                    </span>
+                                                </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    {% else %}
+                                    <div class="alert alert-warning">
+                                        このルームには照明が登録されていません。
+                                    </div>
+                                    {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> ルームが設定されていません。Hueアプリでルームを設定してください。
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 
