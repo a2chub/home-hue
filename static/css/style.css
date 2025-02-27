@@ -1,0 +1,130 @@
+/* Hue照明コントローラー スタイルシート */
+
+body {
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.light-card {
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.light-on {
+    border-color: #28a745;
+}
+
+.light-off {
+    border-color: #dc3545;
+    opacity: 0.8;
+}
+
+.card-header {
+    font-weight: bold;
+}
+
+.form-check-input.light-switch {
+    width: 3rem;
+    height: 1.5rem;
+    cursor: pointer;
+}
+
+.form-range {
+    cursor: pointer;
+}
+
+.brightness-slider::-webkit-slider-thumb {
+    background: #ffc107;
+}
+
+.brightness-slider::-moz-range-thumb {
+    background: #ffc107;
+}
+
+.hue-slider::-webkit-slider-thumb {
+    background: linear-gradient(to right, red, yellow, green, cyan, blue, magenta, red);
+}
+
+.hue-slider::-moz-range-thumb {
+    background: linear-gradient(to right, red, yellow, green, cyan, blue, magenta, red);
+}
+
+.saturation-slider::-webkit-slider-thumb {
+    background: #17a2b8;
+}
+
+.saturation-slider::-moz-range-thumb {
+    background: #17a2b8;
+}
+
+.btn-outline-primary:hover {
+    color: #fff;
+}
+
+footer {
+    margin-top: 2rem;
+    padding: 1rem 0;
+    color: #6c757d;
+}
+
+/* レスポンシブデザイン調整 */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .light-card {
+        margin-bottom: 20px;
+    }
+    
+    .form-check-input.light-switch {
+        width: 2.5rem;
+        height: 1.25rem;
+    }
+}
+
+/* アニメーション効果 */
+.light-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn {
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #343a40;
+        color: #f8f9fa;
+    }
+    
+    .card {
+        background-color: #495057;
+        color: #f8f9fa;
+    }
+    
+    .card-body {
+        background-color: #495057;
+    }
+    
+    .text-muted {
+        color: #adb5bd !important;
+    }
+    
+    footer {
+        background-color: #343a40;
+        color: #adb5bd;
+    }
+} 
